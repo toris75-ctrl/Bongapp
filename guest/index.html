@@ -10,19 +10,15 @@
   <main class="guest-shell">
     <section class="guest-intro">
       <p class="eyebrow">BongFlow</p>
-      <h1>Mine bonger</h1>
-      <p>Logg inn for å se hva du har igjen.</p>
+      <div class="venue-visual" id="venueVisual"><img id="venueImage" alt=""></div>
+      <h1 id="venueTitle">Mine bonger</h1>
+      <p id="venueDescription">Logg inn for å se hva du har igjen.</p>
     </section>
 
     <section class="panel" id="loginPanel">
       <form id="guestLoginForm">
         <label for="location">Sted</label>
-        <select id="location">
-          <option value="casa">Casa Pisano</option>
-          <option value="majorstua">Spillbaren Majorstua</option>
-          <option value="barcode">Spillbaren Barcode</option>
-          <option value="handverkeren">Håndverkeren</option>
-        </select>
+        <select id="location"></select>
         <label for="phone">Telefonnummer</label>
         <input id="phone" type="tel" value="+47 912 34 567" required>
         <label for="birthYear">Fødselsår</label>
@@ -38,6 +34,8 @@
       <div class="bong-number" id="bongCount">0</div>
       <p class="bong-caption">bonger igjen</p>
       <div class="meter"><span id="bongMeter"></span></div>
+      <button class="swipe-button" id="swipeButton" type="button">Sveip bort en bong</button>
+      <p class="message" id="swipeMessage"></p>
       <p class="muted" id="updatedAt">Oppdateres automatisk</p>
     </section>
   </main>

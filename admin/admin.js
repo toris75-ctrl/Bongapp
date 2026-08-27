@@ -27,17 +27,9 @@ async function loadDashboard() {
   document.getElementById('guestCount').textContent = data.guestCount;
   document.getElementById('totalBongs').textContent = data.totalBongs;
   document.getElementById('eventName').textContent = data.event || '-';
-  document.getElementById('guestList').innerHTML = data.guests.length ? data.guests.map((guest) => `<div class="guest-row"><div><strong>${guest.name}</strong><span>${guest.phone} · ${guest.birthYear}</span></div><div class="guest-actions"><b>${guest.bongs}</b><button data-guest-id="${guest.id}" type="button">Sveip bong</button></div></div>`).join('') : '<p class="muted">Ingen gjester registrert ennå.</p>';
-  document.querySelectorAll('[data-guest-id]').forEach((button) => button.addEventListener('click', () => swipe(button.dataset.guestId, button)));
-}
-
-async function swipe(guestId, button) {
-  button.disabled = true;
-  const response = await fetch('/api/swipe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guestId, location: state.location }) });
-  const data = await response.json();
-  button.disabled = false;
-  if (response.ok) loadDashboard();
-  else alert(data.message || 'Kunne ikke sveipe');
+  document.getElementById('companyName').value = data.location.name || '';
+  document.getElementById('eventDetails').value = data.location.eventName || data.event || '';
+  document.getElementById('guestList').innerHTML = data.guests.length ? data.guests.map((guest) => `<div class="guest-row"><div><strong>${guest.name}</strong><span>${guest.phone} · ${guest.birthYear}</span></div><div class="guest-actions"><b>${guest.bongs}</b><span class="muted">På gjestens UI</span></div></div>`).join('') : '<p class="muted">Ingen gjester registrert ennå.</p>';
 }
 
 document.getElementById('adminLoginForm').addEventListener('submit', async (event) => {
@@ -82,9 +74,21 @@ document.getElementById('credentialsForm').addEventListener('submit', async (eve
 document.getElementById('importButton').addEventListener('click', async () => {
   const rows = document.getElementById('guestRows').value.split(/\r?\n/).map((row) => row.trim()).filter(Boolean);
   const locationName = locationSelect.options[locationSelect.selectedIndex].text;
-  const response = await fetch('/api/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rows, location: state.location, company: locationName, event: document.getElementById('eventName').textContent }) });
+  const response = await fetch('/api/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rows, location: state.location, company: document.getElementById('companyName').value || locationName, event: document.getElementById('eventDetails').value || document.getElementById('eventName').textContent }) });
   const data = await response.json();
   message(document.getElementById('importMessage'), response.ok ? `${data.imported} gjester importert` : (data.message || 'Import feilet'), !response.ok);
+  if (response.ok) loadDashboard();
+});
+
+document.getElementById('locationSettingsForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const response = await fetch('/api/location-settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ location: state.location, company: document.getElementById('companyName').value, event: document.getElementById('eventDetails').value })
+  });
+  const data = await response.json();
+  message(document.getElementById('settingsMessage'), response.ok ? 'Informasjonen er lagret' : (data.message || 'Kunne ikke lagre informasjon'), !response.ok);
   if (response.ok) loadDashboard();
 });
 

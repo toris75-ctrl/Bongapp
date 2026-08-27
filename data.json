@@ -4,6 +4,7 @@
       "id": "casa",
       "name": "Casa Pisano",
       "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
+      "accent": "#b45f3d",
       "eventName": "Casa Bowl Night",
       "heroTitle": "Velkommen til Casa Bowl Night",
       "heroCopy": "Casa Pisano<br />14. september 2026<br />20:00 - 02:00"
@@ -12,6 +13,7 @@
       "id": "majorstua",
       "name": "Spillbaren Majorstua",
       "image": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
+      "accent": "#2f6f73",
       "eventName": "Majorstua Beer Quiz",
       "heroTitle": "Velkommen til Majorstua Beer Quiz",
       "heroCopy": "Spillbaren Majorstua<br />22. september 2026<br />18:00 - 23:00"
@@ -20,6 +22,7 @@
       "id": "barcode",
       "name": "Spillbaren Barcode",
       "image": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80",
+      "accent": "#8b5e34",
       "eventName": "Barcode Quiz Night",
       "heroTitle": "Velkommen til Barcode Quiz Night",
       "heroCopy": "Spillbaren Barcode<br />23. september 2026<br />19:00 - 00:00"
@@ -28,6 +31,7 @@
       "id": "handverkeren",
       "name": "Håndverkeren",
       "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+      "accent": "#6b4f8a",
       "eventName": "Håndverkeren Events",
       "heroTitle": "Velkommen til Håndverkeren Events",
       "heroCopy": "Håndverkeren<br />28. september 2026<br />20:00 - 01:00"

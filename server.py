@@ -284,6 +284,30 @@ class BongHandler(SimpleHTTPRequestHandler):
                 self.send_json(400, {"ok": False, "message": str(exc)})
             return
 
+        if path == "/api/location-settings":
+            size = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(size).decode("utf-8")
+            try:
+                payload = json.loads(body)
+                data = load_data()
+                location_id = (payload.get("location") or "").strip()
+                location = next((item for item in data["locations"] if item["id"] == location_id), None)
+                company = (payload.get("company") or "").strip()
+                event = (payload.get("event") or "").strip()
+                if not location or not company or not event:
+                    raise ValueError("Sted, firmanavn og arrangement må fylles ut")
+                location["name"] = company
+                location["eventName"] = event
+                for guest in data["guests"]:
+                    if guest.get("location") == location_id:
+                        guest["company"] = company
+                        guest["event"] = event
+                save_data(data)
+                self.send_json(200, {"ok": True, "location": location})
+            except (ValueError, KeyError, json.JSONDecodeError) as exc:
+                self.send_json(400, {"ok": False, "message": str(exc)})
+            return
+
         self.send_error(404, "Not found")
 
     def serve_static(self, path):

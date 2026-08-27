@@ -31,8 +31,20 @@
     </section>
     <section id="dashboard" hidden>
       <div class="stats"><div><span>Gjester</span><strong id="guestCount">0</strong></div><div><span>Bonger igjen</span><strong id="totalBongs">0</strong></div><div><span>Arrangement</span><strong id="eventName">-</strong></div></div>
+      <section class="panel settings-panel">
+        <p class="eyebrow">Stedsinformasjon</p>
+        <h2>Firmainformasjon og arrangement</h2>
+        <form id="locationSettingsForm">
+          <label for="companyName">Firmanavn</label>
+          <input id="companyName" required>
+          <label for="eventDetails">Hva slags selskap, event eller fest?</label>
+          <input id="eventDetails" placeholder="For eksempel sommerfest, julebord eller kundekveld" required>
+          <button type="submit">Lagre informasjon</button>
+          <p id="settingsMessage" class="message"></p>
+        </form>
+      </section>
       <section class="panel import-panel"><div><p class="eyebrow">Import</p><h2>Oppdater gjestelisten</h2><p class="muted">Excel må ha kolonnene Navn, Telefon, Fødselsår og Bonger. Én gjest per rad.</p></div><label for="fileInput">Excel-fil (.xlsx)</label><input id="fileInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><label for="guestRows">Manuell reserveimport</label><textarea id="guestRows" rows="5" placeholder="Navn / telefon / fødselsår / bonger"></textarea><div class="actions"><button id="importButton" type="button">Importer rader</button></div><p id="importMessage" class="message"></p></section>
-      <section class="panel"><div class="section-head"><div><p class="eyebrow">Live oversikt</p><h2>Gjester</h2></div><button class="secondary" id="refreshButton" type="button">Oppdater</button></div><div id="guestList" class="guest-list"></div></section>
+      <section class="panel"><div class="section-head"><div><p class="eyebrow">Live oversikt</p><h2>Gjester</h2></div><button class="secondary" id="refreshButton" type="button">Oppdater</button></div><p class="muted">Bonger sveipes av gjesten på gjestesiden.</p><div id="guestList" class="guest-list"></div></section>
     </section>
   </main>
   <script src="admin.js"></script>
