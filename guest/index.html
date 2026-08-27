@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mine bonger</title>
+  <link rel="stylesheet" href="guest.css">
+</head>
+<body>
+  <main class="guest-shell">
+    <section class="guest-intro">
+      <p class="eyebrow">BongFlow</p>
+      <h1>Mine bonger</h1>
+      <p>Logg inn for å se hva du har igjen.</p>
+    </section>
+
+    <section class="panel" id="loginPanel">
+      <form id="guestLoginForm">
+        <label for="location">Sted</label>
+        <select id="location">
+          <option value="casa">Casa Pisano</option>
+          <option value="majorstua">Spillbaren Majorstua</option>
+          <option value="barcode">Spillbaren Barcode</option>
+          <option value="handverkeren">Håndverkeren</option>
+        </select>
+        <label for="phone">Telefonnummer</label>
+        <input id="phone" type="tel" value="+47 912 34 567" required>
+        <label for="birthYear">Fødselsår</label>
+        <input id="birthYear" inputmode="numeric" value="1994" required>
+        <button type="submit">Logg inn</button>
+        <p class="message" id="loginMessage"></p>
+      </form>
+    </section>
+
+    <section class="panel account" id="accountPanel" hidden>
+      <div class="account-top"><div><p class="eyebrow" id="eventName">Arrangement</p><h2 id="guestName">Gjest</h2></div><button class="link-button" id="logoutButton" type="button">Logg ut</button></div>
+      <p id="locationName" class="muted"></p>
+      <div class="bong-number" id="bongCount">0</div>
+      <p class="bong-caption">bonger igjen</p>
+      <div class="meter"><span id="bongMeter"></span></div>
+      <p class="muted" id="updatedAt">Oppdateres automatisk</p>
+    </section>
+  </main>
+  <script src="guest.js"></script>
+</body>
+</html>

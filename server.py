@@ -203,13 +203,15 @@ class BongHandler(SimpleHTTPRequestHandler):
         if path.startswith("/bongapp/"):
             path = path.replace("/bongapp/", "/", 1)
         if path in ("", "/"):
-            path = "/index.html"
+            path = "/guest/index.html"
         # Normalize and prevent traversal
         requested = path.lstrip("/")
         abs_path = (BASE_DIR / requested).resolve()
         if BASE_DIR not in abs_path.parents and abs_path != BASE_DIR:
             self.send_error(403, "Forbidden")
             return
+        if abs_path.is_dir():
+            abs_path = abs_path / "index.html"
         if abs_path.is_file():
             body = abs_path.read_bytes()
             ctype = mimetypes.guess_type(str(abs_path))[0] or "application/octet-stream"
