@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BongFlow</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="app-sidebar">
+      <div class="brand-wrap">
+        <div class="brand-mark">
+          <span class="brand-icon">✦</span>
+        </div>
+        <div class="brand-copy">
+          <span class="brand-kicker">BongFlow</span>
+          <span class="brand-name">BongAdmin</span>
+        </div>
+      </div>
+
+      <div class="location-wrap">
+        <label class="input-label" for="locationSelect">Velg sted</label>
+        <div class="select-wrap">
+          <select id="locationSelect">
+            <option value="casa" selected>Casa Pisano</option>
+            <option value="majorstua">Spillbaren Majorstua</option>
+            <option value="barcode">Spillbaren Barcode</option>
+            <option value="håndverkeren">Håndverkeren</option>
+          </select>
+          <span class="select-icon">⌄</span>
+        </div>
+      </div>
+
+      <nav class="main-nav">
+        <a class="nav-link active" href="#">
+          <span class="nav-icon">☏</span>
+          <span class="nav-text">Gjest</span>
+        </a>
+        <a class="nav-link" href="#">
+          <span class="nav-icon">▣</span>
+          <span class="nav-text">Bartender</span>
+        </a>
+        <a class="nav-link" href="#">
+          <span class="nav-icon">☰</span>
+          <span class="nav-text">Admin</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="box-status">
+        <span class="status-label">Event</span>
+        <span class="status-value">Casa Bowl Night</span>
+      </div>
+
+      <div class="box-status small">
+        <span class="status-label">Sted</span>
+        <span class="status-value place-name">Casa Pisano</span>
+      </div>
+
+      <div class="sidebar-footer">
+        <span class="footer-dot"></span>
+        <span class="footer-label">Kampanjefunksjon</span>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <section class="topbar">
+        <div class="crumbs-wrap">
+          <span class="crumb">BongFlow</span>
+          <span class="crumb-sep">/</span>
+          <span class="crumb current">Gjestkonto</span>
+        </div>
+
+        <div class="top-actions">
+          <button class="icon-button">
+            <span class="icon-button-symbol">⌕</span>
+          </button>
+          <button class="icon-button">
+            <span class="icon-button-symbol">☼</span>
+          </button>
+          <button class="user-button">
+            <span class="user-avatar">HP</span>
+            <span class="user-name">Håndverkeren</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="hero">
+        <section class="hero-left">
+          <div class="hero-content">
+            <span class="section-kicker" id="placeKicker">Casa Pisano</span>
+            <h1 class="hero-title" id="heroTitle">Velkommen til Casa Bowl Night</h1>
+            <p class="hero-copy" id="heroCopy">
+              Casa Pisano<br />
+              14. september 2026<br />
+              20:00 - 02:00
+            </p>
+
+            <div class="hero-meta">
+              <div class="meta-item">
+                <span class="meta-label">Gjest</span>
+                <span class="meta-value" id="guestName">Anna Jensen</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Bonger igjen</span>
+                <span class="meta-value" id="bongCount">03</span>
+              </div>
+            </div>
+
+            <div class="hero-actions">
+              <button class="primary-button" id="openLogin">
+                <span class="button-label">Gå til innlogging</span>
+                <span class="button-icon">↗</span>
+              </button>
+              <button class="ghost-button">
+                <span class="button-label">Hjelp</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="hero-right">
+          <div class="image-frame">
+            <div class="image-backdrop place-casa">
+              <div class="image-overlay"></div>
+              <div class="image-content">
+                <span class="image-tag">Casa Pisano</span>
+                <span class="image-date">14 Sep</span>
+              </div>
+              <div class="location-card">
+                <span class="location-card-label">Event</span>
+                <span class="location-card-title">Casa Bowl Night</span>
+                <div class="location-card-row">
+                  <span class="location-card-text">20:00</span>
+                  <span class="location-card-dot"></span>
+                  <span class="location-card-text">Private Room</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="dashboard-grid">
+        <section class="panel guest-login-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-kicker">Gjest innlogging</span>
+              <h2>Logg inn</h2>
+            </div>
+            <span class="panel-badge">QR</span>
+          </div>
+          <div class="qr-wrap">
+            <div class="qr-box">
+              <span class="qr-grid">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+              </span>
+              <span class="qr-cross">✕</span>
+            </div>
+          </div>
+
+          <div class="login-form">
+            <div class="field-row">
+              <label class="input-label" for="phone">Telefonnummer</label>
+              <input class="input-text" id="phone" type="tel" value="+47 912 34 567" />
+            </div>
+            <div class="field-row">
+              <label class="input-label" for="birthYear">Fødselsår</label>
+              <input class="input-text" id="birthYear" type="password" value="1994" />
+            </div>
+            <div class="login-actions">
+              <button class="primary-button wide" id="loginButton">
+                <span class="button-label">Logg inn</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel guest-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-kicker">Gjestsiden</span>
+              <h2>Din konto</h2>
+            </div>
+            <span class="panel-badge light">Aktiv</span>
+          </div>
+
+          <div class="guest-card">
+            <div class="guest-card-head">
+              <span class="guest-company" id="companyName">Casa Pisano</span>
+              <span class="guest-event" id="eventName">Casa Bowl Night</span>
+            </div>
+            <div class="guest-card-body">
+              <span class="guest-name" id="guestNameCard">Anna Jensen</span>
+              <span class="guest-detail">Bonger tilgjengelig på telefon</span>
+              <span class="guest-bong-total" id="bongText">3</span>
+              <div class="bong-bar">
+                <span class="bong-bar-fill" id="bongBarFill" style="width: 66%;"></span>
+              </div>
+              <div class="bong-status">
+                <span class="bong-status-label">Status</span>
+                <span class="bong-status-message">Bongene er tilgjengelige på denne telefonen. Bartender bruker samme telefon for å sveipe bonger vekk.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="guest-card-footer">
+            <span class="mini-data">Sted: <b id="placeName">Casa Pisano</b></span>
+            <span class="mini-data">Arrangement: <b id="arrangementName">Bowl Night</b></span>
+          </div>
+        </section>
+
+        <section class="panel admin-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-kicker">Admin</span>
+              <h2>Admin innlogging</h2>
+            </div>
+            <span class="panel-badge">EXCEL</span>
+          </div>
+
+          <div class="admin-login-form">
+            <div class="field-row">
+              <label class="input-label" for="adminLocation">Velg sted</label>
+              <select class="input-text" id="adminLocation">
+                <option>Casa Pisano</option>
+                <option>Spillbaren Majorstua</option>
+                <option>Spillbaren Barcode</option>
+                <option>Håndverkeren</option>
+              </select>
+            </div>
+
+            <div class="field-row">
+              <label class="input-label" for="adminLoginUser">Adminbruker</label>
+              <input class="input-text" id="adminLoginUser" value="superbruker@håndverkeren" />
+            </div>
+
+            <div class="field-row">
+              <label class="input-label" for="adminLoginPassword">Passord</label>
+              <input class="input-text" id="adminLoginPassword" type="password" value="••••••••" />
+            </div>
+
+            <div class="admin-actions">
+              <button class="primary-button wide">
+                <span class="button-label">Logg inn admin</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="admin-form">
+            <div class="divider-line"></div>
+            <div class="field-row">
+              <label class="input-label" for="adminCompany">Firmanavn</label>
+              <input class="input-text" id="adminCompany" value="Casa Pisano" />
+            </div>
+            <div class="field-row">
+              <label class="input-label" for="adminEvent">Arrangement</label>
+              <input class="input-text" id="adminEvent" value="Casa Bowl Night" />
+            </div>
+
+            <div class="file-drop">
+              <span class="file-icon">⇪</span>
+              <span class="file-label">Last inn Excelark</span>
+            </div>
+            <div class="field-row">
+              <label class="input-label" for="excelGuests">Gjester fra Excel</label>
+              <textarea class="textarea" id="excelGuests">Anna Jensen / +47 912 34 567 / 1994
+Jonas Hauge / +47 941 55 261 / 1990</textarea>
+            </div>
+            <div class="admin-actions">
+              <button class="primary-button wide">
+                <span class="button-label">Importer gjester</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="bottom-grid">
+        <section class="panel bartender-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-kicker">Bartender</span>
+              <h2>Gjestens telefon</h2>
+            </div>
+            <span class="panel-badge light">Live</span>
+          </div>
+          <div class="bartender-gesture">Bong-sveip på samme telefon</div>
+          <div class="bong-list">
+            <div class="bong-row">
+              <span class="bong-name">Anna Jensen</span>
+              <span class="bong-remaining" id="bongs-anna">03</span>
+              <button class="bong-button" data-guest="Anna Jensen">Swipe</button>
+            </div>
+            <div class="bong-row">
+              <span class="bong-name">Jonas Hauge</span>
+              <span class="bong-remaining" id="bongs-jonas">02</span>
+              <button class="bong-button" data-guest="Jonas Hauge">Swipe</button>
+            </div>
+            <div class="bong-row">
+              <span class="bong-name">Mina Strand</span>
+              <span class="bong-remaining" id="bongs-mina">01</span>
+              <button class="bong-button" data-guest="Mina Strand">Swipe</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel place-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-kicker">Sted</span>
+              <h2>Plasser</h2>
+            </div>
+            <span class="panel-badge">01</span>
+          </div>
+          <div class="place-list">
+            <div class="place-row active">
+              <span class="place-name">Casa Pisano</span>
+              <span class="place-img">▦</span>
+            </div>
+            <div class="place-row">
+              <span class="place-name">Spillbaren Majorstua</span>
+              <span class="place-img">▧</span>
+            </div>
+            <div class="place-row">
+              <span class="place-name">Spillbaren Barcode</span>
+              <span class="place-img">▥</span>
+            </div>
+            <div class="place-row">
+              <span class="place-name">Håndverkeren</span>
+              <span class="place-img">✤</span>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

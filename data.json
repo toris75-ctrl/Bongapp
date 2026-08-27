@@ -1,0 +1,98 @@
+{
+  "locations": [
+    {
+      "id": "casa",
+      "name": "Casa Pisano",
+      "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
+      "eventName": "Casa Bowl Night",
+      "heroTitle": "Velkommen til Casa Bowl Night",
+      "heroCopy": "Casa Pisano<br />14. september 2026<br />20:00 - 02:00"
+    },
+    {
+      "id": "majorstua",
+      "name": "Spillbaren Majorstua",
+      "image": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
+      "eventName": "Majorstua Beer Quiz",
+      "heroTitle": "Velkommen til Majorstua Beer Quiz",
+      "heroCopy": "Spillbaren Majorstua<br />22. september 2026<br />18:00 - 23:00"
+    },
+    {
+      "id": "barcode",
+      "name": "Spillbaren Barcode",
+      "image": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80",
+      "eventName": "Barcode Quiz Night",
+      "heroTitle": "Velkommen til Barcode Quiz Night",
+      "heroCopy": "Spillbaren Barcode<br />23. september 2026<br />19:00 - 00:00"
+    },
+    {
+      "id": "handverkeren",
+      "name": "Håndverkeren",
+      "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+      "eventName": "Håndverkeren Events",
+      "heroTitle": "Velkommen til Håndverkeren Events",
+      "heroCopy": "Håndverkeren<br />28. september 2026<br />20:00 - 01:00"
+    }
+  ],
+  "adminUsers": [
+    {
+      "id": "admin-casa",
+      "username": "admin@casa",
+      "password": "1234",
+      "locationName": "Casa Pisano",
+      "role": "admin"
+    },
+    {
+      "id": "admin-majorstua",
+      "username": "admin@majorstua",
+      "password": "1234",
+      "locationName": "Spillbaren Majorstua",
+      "role": "admin"
+    },
+    {
+      "id": "admin-barcode",
+      "username": "admin@barcode",
+      "password": "1234",
+      "locationName": "Spillbaren Barcode",
+      "role": "admin"
+    },
+    {
+      "id": "super-håndverkeren",
+      "username": "superbruker@håndverkeren",
+      "password": "1234",
+      "locationName": "Håndverkeren",
+      "role": "super"
+    }
+  ],
+  "guests": [
+    {
+      "id": "guest-anna",
+      "name": "Anna Jensen",
+      "phone": "+47 912 34 567",
+      "birthYear": "1994",
+      "company": "Casa Pisano",
+      "location": "casa",
+      "bongs": 3,
+      "event": "Casa Bowl Night"
+    },
+    {
+      "id": "guest-jonas",
+      "name": "Jonas Hauge",
+      "phone": "+47 941 55 261",
+      "birthYear": "1990",
+      "company": "Casa Pisano",
+      "location": "casa",
+      "bongs": 2,
+      "event": "Casa Bowl Night"
+    },
+    {
+      "id": "guest-mina",
+      "name": "Mina Strand",
+      "phone": "+47 981 12 742",
+      "birthYear": "1998",
+      "company": "Casa Pisano",
+      "location": "casa",
+      "bongs": 1,
+      "event": "Casa Bowl Night"
+    }
+  ]
+}
