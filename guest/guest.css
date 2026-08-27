@@ -22,5 +22,7 @@ button { margin-top: 22px; border: 0; color: #fff9e9; background: #173126; curso
 .bong-caption { margin: 16px 0 20px; color: #173126; font: 700 14px Arial, sans-serif; text-transform: uppercase; letter-spacing: .12em; }
 .meter { height: 10px; overflow: hidden; border-radius: 5px; background: #d8e3d5; }
 .meter span { display: block; width: 0; height: 100%; border-radius: inherit; background: #b45f3d; transition: width .3s ease; }
-.swipe-button { margin-top: 28px; background: var(--venue-accent); }
-.swipe-button:disabled { background: #9aa99d; }
+.swipe-track { position: relative; height: 58px; margin-top: 28px; padding: 7px; overflow: hidden; border-radius: 29px; background: #d8e3d5; touch-action: none; user-select: none; }
+.swipe-hint { position: absolute; inset: 0; display: grid; place-items: center; color: #607269; font: 700 12px Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; }
+.swipe-handle { position: absolute; top: 7px; left: 7px; width: 46px; min-height: 44px; margin: 0; padding: 0; border-radius: 23px; background: var(--venue-accent); font: 700 18px Arial, sans-serif; touch-action: none; transition: transform .18s ease, background .18s ease; }
+.swipe-handle:disabled { background: #9aa99d; }

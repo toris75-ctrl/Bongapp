@@ -17,8 +17,7 @@
 
     <section class="panel" id="loginPanel">
       <form id="guestLoginForm">
-        <label for="location">Sted</label>
-        <select id="location"></select>
+        <input id="location" type="hidden" value="casa">
         <label for="phone">Telefonnummer</label>
         <input id="phone" type="tel" value="+47 912 34 567" required>
         <label for="birthYear">Fødselsår</label>
@@ -34,7 +33,10 @@
       <div class="bong-number" id="bongCount">0</div>
       <p class="bong-caption">bonger igjen</p>
       <div class="meter"><span id="bongMeter"></span></div>
-      <button class="swipe-button" id="swipeButton" type="button">Sveip bort en bong</button>
+      <div class="swipe-track" id="swipeTrack" aria-label="Sveip for å bruke en bong">
+        <span class="swipe-hint">Dra for å bruke bong</span>
+        <button class="swipe-handle" id="swipeButton" type="button" aria-label="Dra denne til høyre">&gt;&gt;</button>
+      </div>
       <p class="message" id="swipeMessage"></p>
       <p class="muted" id="updatedAt">Oppdateres automatisk</p>
     </section>

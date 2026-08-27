@@ -5,6 +5,9 @@ const loginMessage = document.getElementById('loginMessage');
 let guestSession = null;
 let refreshTimer = null;
 let locations = [];
+let swipeStartX = 0;
+let swipePosition = 0;
+let swiping = false;
 
 function renderVenue(location) {
   if (!location) return;
@@ -19,9 +22,10 @@ function renderVenue(location) {
 async function loadLocations() {
   const response = await fetch('/api/locations');
   locations = await response.json();
-  const select = document.getElementById('location');
-  select.innerHTML = locations.map((location) => `<option value="${location.id}">${location.name}</option>`).join('');
-  renderVenue(locations[0]);
+  const requestedLocation = new URLSearchParams(window.location.search).get('location');
+  const selectedLocation = locations.find((location) => location.id === requestedLocation) || locations[0];
+  document.getElementById('location').value = selectedLocation.id;
+  renderVenue(selectedLocation);
 }
 
 function showMessage(text, error = false) {
@@ -37,7 +41,8 @@ function renderGuest(guest) {
   document.getElementById('bongMeter').style.width = `${Math.min(100, Math.max(0, guest.bongs * 20))}%`;
   const swipeButton = document.getElementById('swipeButton');
   swipeButton.disabled = guest.bongs <= 0;
-  swipeButton.textContent = guest.bongs > 0 ? 'Sveip bort en bong' : 'Ingen bonger igjen';
+  swipeButton.textContent = guest.bongs > 0 ? '>>' : 'X';
+  resetSwipe();
   document.getElementById('updatedAt').textContent = `Sist oppdatert ${new Date().toLocaleTimeString('no-NO')}`;
 }
 
@@ -72,11 +77,12 @@ loginForm.addEventListener('submit', async (event) => {
   }
 });
 
-document.getElementById('location').addEventListener('change', (event) => {
-  renderVenue(locations.find((location) => location.id === event.target.value));
-});
+function resetSwipe() {
+  swipePosition = 0;
+  document.getElementById('swipeButton').style.transform = 'translateX(0)';
+}
 
-document.getElementById('swipeButton').addEventListener('click', async () => {
+async function useBongAfterSwipe() {
   if (!guestSession || guestSession.bongs <= 0) return;
   const swipeButton = document.getElementById('swipeButton');
   const swipeMessage = document.getElementById('swipeMessage');
@@ -97,7 +103,35 @@ document.getElementById('swipeButton').addEventListener('click', async () => {
     swipeMessage.textContent = error.message;
     swipeMessage.className = 'message error';
   }
+}
+
+const swipeTrack = document.getElementById('swipeTrack');
+const swipeHandle = document.getElementById('swipeButton');
+swipeHandle.addEventListener('pointerdown', (event) => {
+  if (swipeHandle.disabled) return;
+  swiping = true;
+  swipeStartX = event.clientX - swipePosition;
+  swipeHandle.setPointerCapture(event.pointerId);
 });
+swipeHandle.addEventListener('pointermove', (event) => {
+  if (!swiping) return;
+  const max = swipeTrack.clientWidth - swipeHandle.offsetWidth - 8;
+  swipePosition = Math.max(0, Math.min(max, event.clientX - swipeStartX));
+  swipeHandle.style.transform = `translateX(${swipePosition}px)`;
+});
+swipeHandle.addEventListener('pointerup', async (event) => {
+  if (!swiping) return;
+  swiping = false;
+  const max = swipeTrack.clientWidth - swipeHandle.offsetWidth - 8;
+  if (swipePosition >= max * 0.82) {
+    swipeHandle.style.transform = `translateX(${max}px)`;
+    await useBongAfterSwipe();
+  } else {
+    resetSwipe();
+  }
+  swipeHandle.releasePointerCapture(event.pointerId);
+});
+swipeHandle.addEventListener('pointercancel', () => { swiping = false; resetSwipe(); });
 
 document.getElementById('logoutButton').addEventListener('click', () => {
   guestSession = null;
