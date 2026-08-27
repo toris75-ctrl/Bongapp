@@ -1,6 +1,12 @@
 const state = { location: 'casa', admin: null };
 const locationSelect = document.getElementById('location');
 const loginMessage = document.getElementById('loginMessage');
+const defaultUsernames = {
+  casa: 'admin@casa',
+  majorstua: 'admin@majorstua',
+  barcode: 'admin@barcode',
+  handverkeren: 'superbruker@håndverkeren'
+};
 
 function message(element, text, error = false) { element.textContent = text; element.className = `message${error ? ' error' : ''}`; }
 
@@ -8,7 +14,12 @@ async function loadLocations() {
   const response = await fetch('/api/locations');
   const locations = await response.json();
   locationSelect.innerHTML = locations.map((location) => `<option value="${location.id}">${location.name}</option>`).join('');
+  document.getElementById('username').value = defaultUsernames[locationSelect.value] || '';
 }
+
+locationSelect.addEventListener('change', () => {
+  document.getElementById('username').value = defaultUsernames[locationSelect.value] || '';
+});
 
 async function loadDashboard() {
   const response = await fetch(`/api/dashboard?location=${encodeURIComponent(state.location)}`);
@@ -79,7 +90,24 @@ document.getElementById('importButton').addEventListener('click', async () => {
 
 document.getElementById('fileInput').addEventListener('change', (event) => {
   const file = event.target.files[0];
-  if (file) file.text().then((text) => { document.getElementById('guestRows').value = text; });
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.xlsx')) {
+    message(document.getElementById('importMessage'), 'Velg en .xlsx-fil', true);
+    event.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result.split(',')[1];
+    const response = await fetch('/api/import-xlsx', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: base64, location: state.location })
+    });
+    const data = await response.json();
+    message(document.getElementById('importMessage'), response.ok ? `${data.imported} gjester importert fra Excel` : (data.message || 'Excel-import feilet'), !response.ok);
+    if (response.ok) loadDashboard();
+  };
+  reader.readAsDataURL(file);
 });
 document.getElementById('refreshButton').addEventListener('click', loadDashboard);
 loadLocations().catch(() => message(loginMessage, 'Kunne ikke hente steder', true));

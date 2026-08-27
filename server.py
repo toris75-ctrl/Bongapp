@@ -1,6 +1,11 @@
 import json
 import os
 import mimetypes
+import base64
+import io
+import re
+import zipfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
@@ -17,6 +22,48 @@ def load_data():
 
 def save_data(data):
     DATA_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def parse_xlsx(content):
+    namespace = {"main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main", "rel": "http://schemas.openxmlformats.org/officeDocument/2006/relationships"}
+    with zipfile.ZipFile(io.BytesIO(content)) as workbook:
+        shared = []
+        if "xl/sharedStrings.xml" in workbook.namelist():
+            root = ET.fromstring(workbook.read("xl/sharedStrings.xml"))
+            for item in root.findall("main:si", namespace):
+                shared.append("".join(node.text or "" for node in item.iter() if node.tag.endswith("}t")))
+
+        sheet = ET.fromstring(workbook.read("xl/worksheets/sheet1.xml"))
+        rows = []
+        for row in sheet.findall(".//main:sheetData/main:row", namespace):
+            values = {}
+            for cell in row.findall("main:c", namespace):
+                reference = cell.get("r", "A1")
+                column = re.sub(r"\d", "", reference)
+                value = cell.find("main:v", namespace)
+                inline = cell.find("main:is", namespace)
+                text = "" if value is None else value.text or ""
+                if cell.get("t") == "s" and text:
+                    text = shared[int(text)]
+                elif cell.get("t") == "inlineStr" and inline is not None:
+                    text = "".join(node.text or "" for node in inline.iter() if node.tag.endswith("}t"))
+                values[column] = text.strip()
+            if values:
+                rows.append(values)
+        if not rows:
+            return []
+
+        headers = {value.lower().strip(): key for key, value in rows[0].items()}
+        aliases = {
+            "name": ("navn", "name", "gjest"),
+            "phone": ("telefon", "telefonnummer", "phone", "mobil"),
+            "birthYear": ("fødselsår", "fodselsar", "birthyear", "birth year"),
+            "bongs": ("bonger", "bong", "bongs", "antall bonger")
+        }
+        columns = {field: next((headers[alias] for alias in names if alias in headers), None) for field, names in aliases.items()}
+        if not all(columns.values()):
+            raise ValueError("Excel-filen må ha kolonnene Navn, Telefon, Fødselsår og Bonger")
+        return [{field: row.get(column, "").strip() for field, column in columns.items()} for row in rows[1:] if row.get(columns["name"], "").strip()]
 
 
 class BongHandler(SimpleHTTPRequestHandler):
@@ -212,6 +259,29 @@ class BongHandler(SimpleHTTPRequestHandler):
             data["guests"].extend(rows)
             save_data(data)
             self.send_json(200, {"ok": True, "imported": len(rows)})
+            return
+
+        if path == "/api/import-xlsx":
+            size = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(size).decode("utf-8")
+            try:
+                payload = json.loads(body)
+                content = base64.b64decode(payload.get("file", ""), validate=True)
+                rows = parse_xlsx(content)
+                data = load_data()
+                location = payload.get("location") or "casa"
+                location_data = next((item for item in data["locations"] if item["id"] == location), data["locations"][0])
+                start_id = len(data["guests"])
+                for index, row in enumerate(rows, start=1):
+                    data["guests"].append({
+                        "id": f"guest-{start_id + index}", "name": row["name"], "phone": row["phone"],
+                        "birthYear": row["birthYear"], "company": location_data["name"], "location": location,
+                        "bongs": int(float(row["bongs"])), "event": location_data.get("eventName")
+                    })
+                save_data(data)
+                self.send_json(200, {"ok": True, "imported": len(rows)})
+            except (ValueError, KeyError, zipfile.BadZipFile, ET.ParseError, base64.binascii.Error) as exc:
+                self.send_json(400, {"ok": False, "message": str(exc)})
             return
 
         self.send_error(404, "Not found")

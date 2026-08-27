@@ -31,7 +31,7 @@
     </section>
     <section id="dashboard" hidden>
       <div class="stats"><div><span>Gjester</span><strong id="guestCount">0</strong></div><div><span>Bonger igjen</span><strong id="totalBongs">0</strong></div><div><span>Arrangement</span><strong id="eventName">-</strong></div></div>
-      <section class="panel import-panel"><div><p class="eyebrow">Import</p><h2>Oppdater gjestelisten</h2><p class="muted">Lim inn rader som: navn / telefon / fødselsår / bonger</p></div><label for="guestRows">Gjester</label><textarea id="guestRows" rows="5" placeholder="Ola Nordmann / +47 900 00 000 / 1992 / 3"></textarea><div class="actions"><button id="importButton" type="button">Importer rader</button><input id="fileInput" type="file" accept=".csv,.txt"></div><p id="importMessage" class="message"></p></section>
+      <section class="panel import-panel"><div><p class="eyebrow">Import</p><h2>Oppdater gjestelisten</h2><p class="muted">Excel må ha kolonnene Navn, Telefon, Fødselsår og Bonger. Én gjest per rad.</p></div><label for="fileInput">Excel-fil (.xlsx)</label><input id="fileInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><label for="guestRows">Manuell reserveimport</label><textarea id="guestRows" rows="5" placeholder="Navn / telefon / fødselsår / bonger"></textarea><div class="actions"><button id="importButton" type="button">Importer rader</button></div><p id="importMessage" class="message"></p></section>
       <section class="panel"><div class="section-head"><div><p class="eyebrow">Live oversikt</p><h2>Gjester</h2></div><button class="secondary" id="refreshButton" type="button">Oppdater</button></div><div id="guestList" class="guest-list"></div></section>
     </section>
   </main>
