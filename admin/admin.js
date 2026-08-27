@@ -2,10 +2,7 @@ const state = { location: 'casa', admin: null };
 const locationSelect = document.getElementById('location');
 const loginMessage = document.getElementById('loginMessage');
 const defaultUsernames = {
-  casa: 'admin@casa',
-  majorstua: 'admin@majorstua',
-  barcode: 'admin@barcode',
-  handverkeren: 'superbruker@håndverkeren'
+  casa: 'Casa', majorstua: 'Majorstua', barcode: 'Barcode', handverkeren: 'Håndverkeren', fabrikken: 'Fabrikken'
 };
 
 function message(element, text, error = false) { element.textContent = text; element.className = `message${error ? ' error' : ''}`; }
@@ -27,7 +24,7 @@ async function loadDashboard() {
   document.getElementById('guestCount').textContent = data.guestCount;
   document.getElementById('totalBongs').textContent = data.totalBongs;
   document.getElementById('eventName').textContent = data.event || '-';
-  document.getElementById('companyName').value = data.location.name || '';
+  document.getElementById('companyName').value = data.location.companyName || data.location.name || '';
   document.getElementById('eventDetails').value = data.location.eventName || data.event || '';
   document.getElementById('guestList').innerHTML = data.guests.length ? data.guests.map((guest) => `<div class="guest-row"><div><strong>${guest.name}</strong><span>${guest.phone} · ${guest.birthYear}</span></div><div class="guest-actions"><b>${guest.bongs}</b><span class="muted">På gjestens UI</span></div></div>`).join('') : '<p class="muted">Ingen gjester registrert ennå.</p>';
 }
@@ -41,8 +38,7 @@ document.getElementById('adminLoginForm').addEventListener('submit', async (even
   state.admin = data.admin;
   document.getElementById('adminIdentity').textContent = state.admin.username;
   document.getElementById('loginPanel').hidden = true;
-  if (data.mustChangeCredentials) {
-    document.getElementById('newUsername').value = state.admin.username;
+  if (data.mustChangePassword) {
     document.getElementById('credentialsPanel').hidden = false;
     return;
   }
@@ -62,7 +58,7 @@ document.getElementById('credentialsForm').addEventListener('submit', async (eve
     message(document.getElementById('credentialsMessage'), 'Passordene er ikke like', true);
     return;
   }
-  const response = await fetch('/api/admin/change-credentials', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentUsername: state.admin.username, currentPassword: document.getElementById('password').value, newUsername: document.getElementById('newUsername').value, newPassword }) });
+  const response = await fetch('/api/admin/change-credentials', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentUsername: state.admin.username, currentPassword: document.getElementById('password').value, newPassword }) });
   const data = await response.json();
   if (!response.ok) { message(document.getElementById('credentialsMessage'), data.message || 'Kunne ikke lagre innlogging', true); return; }
   state.admin = data.admin;

@@ -17,10 +17,10 @@
 
     <section class="panel" id="loginPanel">
       <form id="guestLoginForm">
-        <label for="phone">Telefonnummer</label>
-        <input id="phone" type="tel" value="+47 912 34 567" required>
+        <label for="phone">Telefonnummer (8 siffer)</label>
+        <input id="phone" type="tel" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" placeholder="Skriv 8 siffer" autocomplete="off" required>
         <label for="birthYear">Fødselsår</label>
-        <input id="birthYear" inputmode="numeric" value="1994" required>
+        <input id="birthYear" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" placeholder="Skriv fødselsår" autocomplete="off" required>
         <button type="submit">Logg inn</button>
         <p class="message" id="loginMessage"></p>
       </form>

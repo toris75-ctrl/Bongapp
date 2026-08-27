@@ -4,6 +4,10 @@ import mimetypes
 import base64
 import io
 import re
+import threading
+import time
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 import zipfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -12,16 +16,64 @@ from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = BASE_DIR / "data.json"
+FIXED_LOCATIONS = {
+    "handverkeren": ("Håndverkeren", "Håndverkeren"),
+    "casa": ("Casa Pisano", "Casa"),
+    "barcode": ("Spillbaren Barcode", "Barcode"),
+    "majorstua": ("Spillbaren Majorstua", "Majorstua"),
+    "fabrikken": ("Fabrikken", "Fabrikken")
+}
 
 
 def load_data():
     if DATA_FILE.exists():
-        return json.loads(DATA_FILE.read_text(encoding="utf-8"))
-    return {"locations": [], "adminUsers": [], "guests": []}
+        data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+    else:
+        data = {"locations": [], "adminUsers": [], "guests": []}
+    normalize_fixed_accounts(data)
+    return data
 
 
 def save_data(data):
     DATA_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def normalize_phone(value):
+    digits = re.sub(r"\D", "", str(value))
+    return digits[-8:] if len(digits) >= 8 else digits
+
+
+def reset_guests():
+    data = load_data()
+    changed = False
+    for guest in data["guests"]:
+        if guest.get("bongs", 0) != 0 or guest.get("phone"):
+            guest["bongs"] = 0
+            guest["phone"] = ""
+            changed = True
+    if changed:
+        save_data(data)
+
+
+def daily_reset_loop():
+    oslo = ZoneInfo("Europe/Oslo")
+    while True:
+        now = datetime.now(oslo)
+        next_reset = now.replace(hour=6, minute=0, second=0, microsecond=0)
+        if now >= next_reset:
+            next_reset += timedelta(days=1)
+        time.sleep(max(1, (next_reset - now).total_seconds()))
+        reset_guests()
+
+
+def normalize_fixed_accounts(data):
+    existing = {user.get("locationName"): user for user in data["adminUsers"]}
+    for location_id, (location_name, username) in FIXED_LOCATIONS.items():
+        user = existing.get(location_name)
+        if user:
+            user["username"] = username
+        else:
+            data["adminUsers"].append({"id": f"admin-{location_id}", "username": username, "password": "1234", "locationName": location_name, "role": "admin", "mustChangePassword": True})
 
 
 def parse_xlsx(content):
@@ -129,7 +181,7 @@ class BongHandler(SimpleHTTPRequestHandler):
                 self.send_json(401, {"ok": False, "message": "Admin does not belong to that location"})
                 return
 
-            self.send_json(200, {"ok": True, "mustChangeCredentials": admin.get("mustChangeCredentials", True), "admin": {"username": admin["username"], "role": admin.get("role"), "locationName": admin.get("locationName")}})
+            self.send_json(200, {"ok": True, "mustChangePassword": admin.get("mustChangePassword", admin.get("mustChangeCredentials", True)), "admin": {"username": admin["username"], "role": admin.get("role"), "locationName": admin.get("locationName")}})
             return
 
         if path == "/api/admin/change-credentials":
@@ -143,10 +195,9 @@ class BongHandler(SimpleHTTPRequestHandler):
 
             current_username = (payload.get("currentUsername") or "").strip()
             current_password = (payload.get("currentPassword") or "").strip()
-            new_username = (payload.get("newUsername") or "").strip()
             new_password = (payload.get("newPassword") or "").strip()
-            if len(new_username) < 3 or len(new_password) < 8:
-                self.send_json(400, {"ok": False, "message": "Brukernavn må ha minst 3 tegn og passord minst 8 tegn"})
+            if len(new_password) < 8:
+                self.send_json(400, {"ok": False, "message": "Passordet må ha minst 8 tegn"})
                 return
 
             data = load_data()
@@ -154,15 +205,15 @@ class BongHandler(SimpleHTTPRequestHandler):
             if not admin:
                 self.send_json(401, {"ok": False, "message": "Gammel innlogging er ikke korrekt"})
                 return
-            if any(u is not admin and u.get("username") == new_username for u in data["adminUsers"]):
-                self.send_json(409, {"ok": False, "message": "Brukernavnet er allerede i bruk"})
+            if not admin.get("mustChangePassword", admin.get("mustChangeCredentials", True)):
+                self.send_json(403, {"ok": False, "message": "Passordet kan bare endres ved første innlogging"})
                 return
 
-            admin["username"] = new_username
             admin["password"] = new_password
-            admin["mustChangeCredentials"] = False
+            admin["mustChangePassword"] = False
+            admin.pop("mustChangeCredentials", None)
             save_data(data)
-            self.send_json(200, {"ok": True, "admin": {"username": new_username, "role": admin.get("role"), "locationName": admin.get("locationName")}})
+            self.send_json(200, {"ok": True, "admin": {"username": admin["username"], "role": admin.get("role"), "locationName": admin.get("locationName")}})
             return
 
         if path == "/api/guest/login":
@@ -176,11 +227,11 @@ class BongHandler(SimpleHTTPRequestHandler):
                 self.send_json(400, {"ok": False, "message": "Invalid JSON"})
                 return
 
-            phone = (payload.get("phone") or "").strip()
+            phone = normalize_phone(payload.get("phone") or "")
             birthYear = str(payload.get("birthYear") or "").strip()
             location = (payload.get("location") or "").strip()
             data = load_data()
-            guest = next((g for g in data["guests"] if g.get("phone") == phone and str(g.get("birthYear")) == birthYear and (not location or g.get("location") == location)), None)
+            guest = next((g for g in data["guests"] if normalize_phone(g.get("phone", "")) == phone and str(g.get("birthYear")) == birthYear and (not location or g.get("location") == location)), None)
 
             if not guest:
                 self.send_json(401, {"ok": False, "message": "Invalid guest login"})
@@ -276,7 +327,7 @@ class BongHandler(SimpleHTTPRequestHandler):
                 for index, row in enumerate(rows, start=1):
                     data["guests"].append({
                         "id": f"guest-{start_id + index}", "name": row["name"], "phone": row["phone"],
-                        "birthYear": row["birthYear"], "company": location_data["name"], "location": location,
+                        "birthYear": row["birthYear"], "company": location_data.get("companyName", location_data["name"]), "location": location,
                         "bongs": int(float(row["bongs"])), "event": location_data.get("eventName")
                     })
                 save_data(data)
@@ -297,7 +348,7 @@ class BongHandler(SimpleHTTPRequestHandler):
                 event = (payload.get("event") or "").strip()
                 if not location or not company or not event:
                     raise ValueError("Sted, firmanavn og arrangement må fylles ut")
-                location["name"] = company
+                location["companyName"] = company
                 location["eventName"] = event
                 for guest in data["guests"]:
                     if guest.get("location") == location_id:
@@ -366,6 +417,7 @@ if __name__ == "__main__":
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", 8080))
     try:
+        threading.Thread(target=daily_reset_loop, daemon=True).start()
         server = ThreadingHTTPServer((host, port), BongHandler)
         print(f"BongFlow server running at http://{host}:{port}")
         server.serve_forever()

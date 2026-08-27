@@ -3,6 +3,7 @@
     {
       "id": "casa",
       "name": "Casa Pisano",
+      "companyName": "Casa Pisano",
       "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
       "accent": "#b45f3d",
       "eventName": "Casa Bowl Night",
@@ -12,6 +13,7 @@
     {
       "id": "majorstua",
       "name": "Spillbaren Majorstua",
+      "companyName": "Spillbaren Majorstua",
       "image": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
       "accent": "#2f6f73",
       "eventName": "Majorstua Beer Quiz",
@@ -21,6 +23,7 @@
     {
       "id": "barcode",
       "name": "Spillbaren Barcode",
+      "companyName": "Spillbaren Barcode",
       "image": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80",
       "accent": "#8b5e34",
       "eventName": "Barcode Quiz Night",
@@ -30,41 +33,64 @@
     {
       "id": "handverkeren",
       "name": "Håndverkeren",
+      "companyName": "Håndverkeren",
       "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
       "accent": "#6b4f8a",
       "eventName": "Håndverkeren Events",
       "heroTitle": "Velkommen til Håndverkeren Events",
       "heroCopy": "Håndverkeren<br />28. september 2026<br />20:00 - 01:00"
+    },
+    {
+      "id": "fabrikken",
+      "name": "Fabrikken",
+      "companyName": "Fabrikken",
+      "image": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+      "accent": "#3f6b9a",
+      "eventName": "Fabrikken Event",
+      "heroTitle": "Velkommen til Fabrikken",
+      "heroCopy": "Fabrikken<br />Arrangement"
     }
   ],
   "adminUsers": [
     {
       "id": "admin-casa",
-      "username": "admin@casa",
+      "username": "Casa",
       "password": "1234",
       "locationName": "Casa Pisano",
-      "role": "admin"
+      "role": "admin",
+      "mustChangePassword": true
     },
     {
       "id": "admin-majorstua",
-      "username": "admin@majorstua",
+      "username": "Majorstua",
       "password": "1234",
       "locationName": "Spillbaren Majorstua",
-      "role": "admin"
+      "role": "admin",
+      "mustChangePassword": true
     },
     {
       "id": "admin-barcode",
-      "username": "admin@barcode",
+      "username": "Barcode",
       "password": "1234",
       "locationName": "Spillbaren Barcode",
-      "role": "admin"
+      "role": "admin",
+      "mustChangePassword": true
     },
     {
       "id": "super-håndverkeren",
-      "username": "superbruker@håndverkeren",
+      "username": "Håndverkeren",
       "password": "1234",
       "locationName": "Håndverkeren",
-      "role": "super"
+      "role": "super",
+      "mustChangePassword": true
+    },
+    {
+      "id": "admin-fabrikken",
+      "username": "Fabrikken",
+      "password": "1234",
+      "locationName": "Fabrikken",
+      "role": "admin",
+      "mustChangePassword": true
     }
   ],
   "guests": [

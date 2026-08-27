@@ -21,9 +21,8 @@
     <section class="panel" id="credentialsPanel" hidden>
       <p class="eyebrow">Første gangs innlogging</p>
       <h2>Velg ny innlogging</h2>
-      <p class="muted">Du må endre både brukernavn og passord før du kan åpne driftsbordet.</p>
+      <p class="muted">Brukernavnet er fast. Du må endre passordet før du kan åpne driftsbordet.</p>
       <form id="credentialsForm">
-        <label for="newUsername">Nytt brukernavn</label><input id="newUsername" required minlength="3" autocomplete="username">
         <label for="newPassword">Nytt passord</label><input id="newPassword" type="password" required minlength="8" autocomplete="new-password">
         <label for="confirmPassword">Gjenta nytt passord</label><input id="confirmPassword" type="password" required minlength="8" autocomplete="new-password">
         <button type="submit">Lagre ny innlogging</button><p id="credentialsMessage" class="message"></p>
