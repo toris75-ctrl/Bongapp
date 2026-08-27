@@ -11,6 +11,7 @@ let swiping = false;
 
 function renderVenue(location) {
   if (!location) return;
+  document.getElementById('venueVisual').hidden = false;
   document.getElementById('venueTitle').textContent = location.name;
   document.getElementById('venueDescription').textContent = location.eventName || 'Logg inn for å se hva du har igjen.';
   const image = document.getElementById('venueImage');
@@ -22,10 +23,6 @@ function renderVenue(location) {
 async function loadLocations() {
   const response = await fetch('/api/locations');
   locations = await response.json();
-  const requestedLocation = new URLSearchParams(window.location.search).get('location');
-  const selectedLocation = locations.find((location) => location.id === requestedLocation) || locations[0];
-  document.getElementById('location').value = selectedLocation.id;
-  renderVenue(selectedLocation);
 }
 
 function showMessage(text, error = false) {
@@ -59,7 +56,6 @@ loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   showMessage('Logger inn ...');
   const payload = {
-    location: document.getElementById('location').value,
     phone: document.getElementById('phone').value,
     birthYear: document.getElementById('birthYear').value
   };
@@ -68,6 +64,7 @@ loginForm.addEventListener('submit', async (event) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Kunne ikke logge inn');
     guestSession = data.guest;
+    renderVenue(locations.find((location) => location.id === guestSession.locationId));
     loginPanel.hidden = true;
     accountPanel.hidden = false;
     renderGuest(guestSession);

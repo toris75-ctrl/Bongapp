@@ -178,14 +178,15 @@ class BongHandler(SimpleHTTPRequestHandler):
 
             phone = (payload.get("phone") or "").strip()
             birthYear = str(payload.get("birthYear") or "").strip()
-            location = (payload.get("location") or "casa").strip()
+            location = (payload.get("location") or "").strip()
             data = load_data()
-            guest = next((g for g in data["guests"] if g.get("phone") == phone and str(g.get("birthYear")) == birthYear and g.get("location") == location), None)
+            guest = next((g for g in data["guests"] if g.get("phone") == phone and str(g.get("birthYear")) == birthYear and (not location or g.get("location") == location)), None)
 
             if not guest:
                 self.send_json(401, {"ok": False, "message": "Invalid guest login"})
                 return
 
+            location = guest.get("location")
             location_data = next((l for l in data["locations"] if l["id"] == location), data["locations"][0])
             guest_payload = {
                 "ok": True,
