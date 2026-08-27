@@ -38,8 +38,34 @@ document.getElementById('adminLoginForm').addEventListener('submit', async (even
   state.admin = data.admin;
   document.getElementById('adminIdentity').textContent = state.admin.username;
   document.getElementById('loginPanel').hidden = true;
+  if (data.mustChangeCredentials) {
+    document.getElementById('newUsername').value = state.admin.username;
+    document.getElementById('credentialsPanel').hidden = false;
+    return;
+  }
+  openDashboard();
+});
+
+function openDashboard() {
+  document.getElementById('credentialsPanel').hidden = true;
   document.getElementById('dashboard').hidden = false;
   loadDashboard();
+}
+
+document.getElementById('credentialsForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const newPassword = document.getElementById('newPassword').value;
+  if (newPassword !== document.getElementById('confirmPassword').value) {
+    message(document.getElementById('credentialsMessage'), 'Passordene er ikke like', true);
+    return;
+  }
+  const response = await fetch('/api/admin/change-credentials', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentUsername: state.admin.username, currentPassword: document.getElementById('password').value, newUsername: document.getElementById('newUsername').value, newPassword }) });
+  const data = await response.json();
+  if (!response.ok) { message(document.getElementById('credentialsMessage'), data.message || 'Kunne ikke lagre innlogging', true); return; }
+  state.admin = data.admin;
+  document.getElementById('adminIdentity').textContent = state.admin.username;
+  message(document.getElementById('credentialsMessage'), 'Innloggingen er oppdatert');
+  openDashboard();
 });
 
 document.getElementById('importButton').addEventListener('click', async () => {

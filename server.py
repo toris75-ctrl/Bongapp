@@ -82,7 +82,40 @@ class BongHandler(SimpleHTTPRequestHandler):
                 self.send_json(401, {"ok": False, "message": "Admin does not belong to that location"})
                 return
 
-            self.send_json(200, {"ok": True, "admin": {"username": admin["username"], "role": admin.get("role"), "locationName": admin.get("locationName")}})
+            self.send_json(200, {"ok": True, "mustChangeCredentials": admin.get("mustChangeCredentials", True), "admin": {"username": admin["username"], "role": admin.get("role"), "locationName": admin.get("locationName")}})
+            return
+
+        if path == "/api/admin/change-credentials":
+            size = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(size).decode("utf-8")
+            try:
+                payload = json.loads(body)
+            except Exception:
+                self.send_json(400, {"ok": False, "message": "Invalid JSON"})
+                return
+
+            current_username = (payload.get("currentUsername") or "").strip()
+            current_password = (payload.get("currentPassword") or "").strip()
+            new_username = (payload.get("newUsername") or "").strip()
+            new_password = (payload.get("newPassword") or "").strip()
+            if len(new_username) < 3 or len(new_password) < 8:
+                self.send_json(400, {"ok": False, "message": "Brukernavn må ha minst 3 tegn og passord minst 8 tegn"})
+                return
+
+            data = load_data()
+            admin = next((u for u in data["adminUsers"] if u.get("username") == current_username and u.get("password") == current_password), None)
+            if not admin:
+                self.send_json(401, {"ok": False, "message": "Gammel innlogging er ikke korrekt"})
+                return
+            if any(u is not admin and u.get("username") == new_username for u in data["adminUsers"]):
+                self.send_json(409, {"ok": False, "message": "Brukernavnet er allerede i bruk"})
+                return
+
+            admin["username"] = new_username
+            admin["password"] = new_password
+            admin["mustChangeCredentials"] = False
+            save_data(data)
+            self.send_json(200, {"ok": True, "admin": {"username": new_username, "role": admin.get("role"), "locationName": admin.get("locationName")}})
             return
 
         if path == "/api/guest/login":

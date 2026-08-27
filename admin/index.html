@@ -18,6 +18,17 @@
         <button type="submit">Logg inn</button><p id="loginMessage" class="message"></p>
       </form>
     </section>
+    <section class="panel" id="credentialsPanel" hidden>
+      <p class="eyebrow">Første gangs innlogging</p>
+      <h2>Velg ny innlogging</h2>
+      <p class="muted">Du må endre både brukernavn og passord før du kan åpne driftsbordet.</p>
+      <form id="credentialsForm">
+        <label for="newUsername">Nytt brukernavn</label><input id="newUsername" required minlength="3" autocomplete="username">
+        <label for="newPassword">Nytt passord</label><input id="newPassword" type="password" required minlength="8" autocomplete="new-password">
+        <label for="confirmPassword">Gjenta nytt passord</label><input id="confirmPassword" type="password" required minlength="8" autocomplete="new-password">
+        <button type="submit">Lagre ny innlogging</button><p id="credentialsMessage" class="message"></p>
+      </form>
+    </section>
     <section id="dashboard" hidden>
       <div class="stats"><div><span>Gjester</span><strong id="guestCount">0</strong></div><div><span>Bonger igjen</span><strong id="totalBongs">0</strong></div><div><span>Arrangement</span><strong id="eventName">-</strong></div></div>
       <section class="panel import-panel"><div><p class="eyebrow">Import</p><h2>Oppdater gjestelisten</h2><p class="muted">Lim inn rader som: navn / telefon / fødselsår / bonger</p></div><label for="guestRows">Gjester</label><textarea id="guestRows" rows="5" placeholder="Ola Nordmann / +47 900 00 000 / 1992 / 3"></textarea><div class="actions"><button id="importButton" type="button">Importer rader</button><input id="fileInput" type="file" accept=".csv,.txt"></div><p id="importMessage" class="message"></p></section>
