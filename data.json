@@ -93,36 +93,6 @@
       "mustChangePassword": true
     }
   ],
-  "guests": [
-    {
-      "id": "guest-anna",
-      "name": "Anna Jensen",
-      "phone": "+47 912 34 567",
-      "birthYear": "1994",
-      "company": "Casa Pisano",
-      "location": "casa",
-      "bongs": 3,
-      "event": "Casa Bowl Night"
-    },
-    {
-      "id": "guest-jonas",
-      "name": "Jonas Hauge",
-      "phone": "+47 941 55 261",
-      "birthYear": "1990",
-      "company": "Casa Pisano",
-      "location": "casa",
-      "bongs": 2,
-      "event": "Casa Bowl Night"
-    },
-    {
-      "id": "guest-mina",
-      "name": "Mina Strand",
-      "phone": "+47 981 12 742",
-      "birthYear": "1998",
-      "company": "Casa Pisano",
-      "location": "casa",
-      "bongs": 1,
-      "event": "Casa Bowl Night"
-    }
-  ]
+  "guests": [],
+  "lastGuestReset": "2026-08-28"
 }

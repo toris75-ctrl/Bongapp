@@ -6,7 +6,8 @@ import io
 import re
 import threading
 import time
-from datetime import datetime, timedelta
+import uuid
+from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 import zipfile
 import xml.etree.ElementTree as ET
@@ -29,7 +30,16 @@ def load_data():
     if DATA_FILE.exists():
         data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
     else:
-        data = {"locations": [], "adminUsers": [], "guests": []}
+        data = {"locations": [], "adminUsers": [], "events": [], "guests": []}
+    data.setdefault("events", [])
+    for location in data["locations"]:
+        if not any(item.get("location") == location["id"] for item in data["events"]):
+            data["events"].append({"id": f"event-{location['id']}-default", "name": location.get("eventName", "Hovedevent"), "location": location["id"]})
+    for guest in data["guests"]:
+        if not guest.get("eventId"):
+            event = next((item for item in data["events"] if item.get("location") == guest.get("location") and item.get("name") == guest.get("event")), None)
+            if event:
+                guest["eventId"] = event["id"]
     normalize_fixed_accounts(data)
     return data
 
@@ -43,22 +53,42 @@ def normalize_phone(value):
     return digits[-8:] if len(digits) >= 8 else digits
 
 
+def oslo_now():
+    try:
+        return datetime.now(ZoneInfo("Europe/Oslo"))
+    except Exception:
+        current = datetime.now(timezone.utc)
+        year = current.year
+        summer_start = date(year, 3, 31)
+        summer_start -= timedelta(days=(summer_start.weekday() + 1) % 7)
+        summer_end = date(year, 10, 31)
+        summer_end -= timedelta(days=(summer_end.weekday() + 1) % 7)
+        offset = timedelta(hours=2 if summer_start <= current.date() < summer_end else 1)
+        return (current + offset).replace(tzinfo=timezone(offset))
+
+
 def reset_guests():
     data = load_data()
-    changed = False
-    for guest in data["guests"]:
-        if guest.get("bongs", 0) != 0 or guest.get("phone"):
-            guest["bongs"] = 0
-            guest["phone"] = ""
-            changed = True
-    if changed:
-        save_data(data)
+    now = oslo_now()
+    today = now.date().isoformat()
+    if now.hour < 6 or data.get("lastGuestReset") == today:
+        return
+    data["guests"] = []
+    data["lastGuestReset"] = today
+    save_data(data)
+
+
+def event_for_guest(data, guest):
+    event_id = guest.get("eventId")
+    event = next((item for item in data["events"] if item.get("id") == event_id), None)
+    if event:
+        return event
+    return {"id": "legacy", "name": guest.get("event") or "Uten event", "location": guest.get("location")}
 
 
 def daily_reset_loop():
-    oslo = ZoneInfo("Europe/Oslo")
     while True:
-        now = datetime.now(oslo)
+        now = oslo_now()
         next_reset = now.replace(hour=6, minute=0, second=0, microsecond=0)
         if now >= next_reset:
             next_reset += timedelta(days=1)
@@ -133,12 +163,14 @@ class BongHandler(SimpleHTTPRequestHandler):
 
         if path == "/api/dashboard":
             location_id = (query.get("location") or ["casa"])[0]
+            event_id = (query.get("event") or [""])[0]
             data = load_data()
             location = next((x for x in data["locations"] if x["id"] == location_id), data["locations"][0])
-            guests = [g for g in data["guests"] if g.get("location") == location_id]
+            guests = [g for g in data["guests"] if g.get("location") == location_id and (not event_id or g.get("eventId") == event_id)]
             payload = {
                 "location": location,
-                "event": location.get("eventName"),
+                "event": next((item.get("name") for item in data["events"] if item.get("id") == event_id), location.get("eventName")),
+                "events": [item for item in data["events"] if item.get("location") == location_id],
                 "guests": guests,
                 "guestCount": len(guests),
                 "totalBongs": sum(g.get("bongs", 0) for g in guests)
@@ -151,6 +183,11 @@ class BongHandler(SimpleHTTPRequestHandler):
             data = load_data()
             guests = [g for g in data["guests"] if g.get("location") == location_id]
             self.send_json(200, guests)
+            return
+
+        if path == "/api/events":
+            location_id = (query.get("location") or ["casa"])[0]
+            self.send_json(200, [item for item in load_data()["events"] if item.get("location") == location_id])
             return
 
         # Serve files for normal web paths.
@@ -182,6 +219,25 @@ class BongHandler(SimpleHTTPRequestHandler):
                 return
 
             self.send_json(200, {"ok": True, "mustChangePassword": admin.get("mustChangePassword", admin.get("mustChangeCredentials", True)), "admin": {"username": admin["username"], "role": admin.get("role"), "locationName": admin.get("locationName")}})
+            return
+
+        if path == "/api/events":
+            size = int(self.headers.get("Content-Length", "0"))
+            try:
+                payload = json.loads(self.rfile.read(size).decode("utf-8"))
+                location_id = (payload.get("location") or "").strip()
+                name = (payload.get("name") or "").strip()
+                data = load_data()
+                if not location_id or not name:
+                    raise ValueError("Eventnavn må fylles ut")
+                if not any(item.get("id") == location_id for item in data["locations"]):
+                    raise ValueError("Ugyldig sted")
+                event = {"id": str(uuid.uuid4()), "name": name, "location": location_id}
+                data["events"].append(event)
+                save_data(data)
+                self.send_json(201, {"ok": True, "event": event})
+            except (ValueError, json.JSONDecodeError) as exc:
+                self.send_json(400, {"ok": False, "message": str(exc)})
             return
 
         if path == "/api/admin/change-credentials":
@@ -239,6 +295,7 @@ class BongHandler(SimpleHTTPRequestHandler):
 
             location = guest.get("location")
             location_data = next((l for l in data["locations"] if l["id"] == location), data["locations"][0])
+            event = event_for_guest(data, guest)
             guest_payload = {
                 "ok": True,
                 "guest": {
@@ -247,7 +304,8 @@ class BongHandler(SimpleHTTPRequestHandler):
                     "company": guest.get("company"),
                     "location": location_data.get("name"),
                     "locationId": location,
-                    "event": guest.get("event") or location_data.get("eventName"),
+                    "event": event.get("name") or location_data.get("eventName"),
+                    "eventId": event.get("id"),
                     "bongs": guest.get("bongs"),
                     "phone": guest.get("phone"),
                     "birthYear": guest.get("birthYear")
@@ -292,22 +350,29 @@ class BongHandler(SimpleHTTPRequestHandler):
             # Simple Excel import mapping from admin UI rows by copy-paste key-value format
             # Here interpret name / phone / birthYear / bongs if given.
             rows = []
+            data = load_data()
+            location_id = payload.get("location") or "casa"
+            event_id = (payload.get("eventId") or "").strip()
+            event = next((item for item in data["events"] if item.get("id") == event_id and item.get("location") == location_id), None)
+            if not event:
+                self.send_json(400, {"ok": False, "message": "Velg et event før import"})
+                return
             for line in (payload.get("rows") or []):
                 parts = [p.strip() for p in str(line).split("/")]
                 if len(parts) >= 4:
                     guest = {
-                        "id": f"guest-{len(load_data()['guests']) + len(rows) + 1}",
+                        "id": f"guest-{len(data['guests']) + len(rows) + 1}",
                         "name": parts[0],
                         "phone": parts[1],
                         "birthYear": parts[2],
                         "company": payload.get("company") or "Casa Pisano",
-                        "location": payload.get("location") or "casa",
+                        "location": location_id,
                         "bongs": int(parts[3]),
-                        "event": payload.get("event") or "Casa Bowl Night"
+                        "event": event["name"],
+                        "eventId": event["id"]
                     }
                     rows.append(guest)
 
-            data = load_data()
             data["guests"].extend(rows)
             save_data(data)
             self.send_json(200, {"ok": True, "imported": len(rows)})
@@ -322,13 +387,17 @@ class BongHandler(SimpleHTTPRequestHandler):
                 rows = parse_xlsx(content)
                 data = load_data()
                 location = payload.get("location") or "casa"
+                event_id = (payload.get("eventId") or "").strip()
+                event = next((item for item in data["events"] if item.get("id") == event_id and item.get("location") == location), None)
+                if not event:
+                    raise ValueError("Velg et event før import")
                 location_data = next((item for item in data["locations"] if item["id"] == location), data["locations"][0])
                 start_id = len(data["guests"])
                 for index, row in enumerate(rows, start=1):
                     data["guests"].append({
                         "id": f"guest-{start_id + index}", "name": row["name"], "phone": row["phone"],
                         "birthYear": row["birthYear"], "company": location_data.get("companyName", location_data["name"]), "location": location,
-                        "bongs": int(float(row["bongs"])), "event": location_data.get("eventName")
+                        "bongs": int(float(row["bongs"])), "event": event["name"], "eventId": event["id"]
                     })
                 save_data(data)
                 self.send_json(200, {"ok": True, "imported": len(rows)})
@@ -417,6 +486,7 @@ if __name__ == "__main__":
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", 8080))
     try:
+        reset_guests()
         threading.Thread(target=daily_reset_loop, daemon=True).start()
         server = ThreadingHTTPServer((host, port), BongHandler)
         print(f"BongFlow server running at http://{host}:{port}")
